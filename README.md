@@ -2,6 +2,8 @@
 
 JavaScript Metaballs based on blog post from: http://jamie-wong.com/2014/08/19/metaballs-and-marching-squares/
 
+Note: resolution for all 'final' gifs below is 300 x 200, and 15 x 10 for the 'debug' ones.
+
 ## Linear Interpolation
 ### Final:
 
