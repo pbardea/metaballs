@@ -13,6 +13,15 @@ Note: resolution for all 'final' gifs below is 300 x 200, and 15 x 10 for the 'd
 
 ![metaballsdebug](https://cloud.githubusercontent.com/assets/507390/25349098/93fcfaba-28ee-11e7-8f31-7e7a9d292dad.gif)
 
+## Filled With Linear Interpolation
+### Final:
+
+![filled](https://cloud.githubusercontent.com/assets/507390/25360683/265c91da-2918-11e7-9458-de05a49f358e.gif)
+
+### Debug:
+
+![filleddebug](https://cloud.githubusercontent.com/assets/507390/25360682/26577768-2918-11e7-916a-b0957114b4c8.gif)
+
 ## Marching Square Without Interpolation
 
 ### Final:
