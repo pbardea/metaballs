@@ -7,6 +7,7 @@ var centerY = canvas.height / 2;
 var circles = [];
 
 var debug = false;
+var enableInterpolation = false;
 
 ctx.font="10px Avenir";
 
@@ -73,7 +74,7 @@ function right(row, column, table) {
 }
 
 function interpolate(fa, fb) {
-  return ((1-fa)/(fb - fa));
+  return enableInterpolation ? ((1-fa)/(fb - fa)) : 0.5;
 }
 
 function drawGrid() {
