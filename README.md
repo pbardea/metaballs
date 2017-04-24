@@ -18,3 +18,10 @@ JavaScript Metaballs based on blog post from: http://jamie-wong.com/2014/08/19/m
 ### Debug without interpolation:
 
 ![metaballsdebugnointerlop](https://cloud.githubusercontent.com/assets/507390/25349223/036dacf0-28ef-11e7-90fd-cd86b2ce723b.gif)
+
+### Blocky Final:
+![blockyfinal](https://cloud.githubusercontent.com/assets/507390/25349391/b55db6c6-28ef-11e7-84be-0f2d00d8263c.gif)
+
+### Blocky Debug:
+
+![blockydebug](https://cloud.githubusercontent.com/assets/507390/25349392/b575ae34-28ef-11e7-92f3-be2948006b69.gif)
