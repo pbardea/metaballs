@@ -3,4 +3,14 @@ Metaballs
 
 JavaScript Metaballs based on blog post from: http://jamie-wong.com/2014/08/19/metaballs-and-marching-squares/
 
+Final result:
 ![Preview](https://cloud.githubusercontent.com/assets/507390/25349032/4b08c3e8-28ee-11e7-9ca1-3a97b8f42840.gif)
+
+Debug mode with interpolation:
+![metaballsdebug](https://cloud.githubusercontent.com/assets/507390/25349098/93fcfaba-28ee-11e7-8f31-7e7a9d292dad.gif)
+
+Final without interpolation:
+![metaballsnointerlop](https://cloud.githubusercontent.com/assets/507390/25349224/0380fbca-28ef-11e7-891f-b0fb1cf1ac3f.gif)
+
+Debug without interpolation:
+![metaballsdebugnointerlop](https://cloud.githubusercontent.com/assets/507390/25349223/036dacf0-28ef-11e7-90fd-cd86b2ce723b.gif)
