@@ -6,9 +6,12 @@ var centerY = canvas.height / 2;
 
 var circles = [];
 
-var debug = true;
+// Global Flags
+var debug = false;
 var enableInterpolation = true;
+var filledShapes = true;
 
+// Context settings
 ctx.font="10px Avenir";
 
 var numRows = debug ? 10 : 200;
@@ -17,86 +20,51 @@ var numCols = debug ? 15 : 300;
 var rowHeight = canvas.height / numRows;
 var colWidth = canvas.width / numCols;
 
-var filledShapes = true;
+function edge(row, column, table, r1, c1, r2, c2) {
+  var a = table[row + r1][column + c1];
+  var b = table[row + r2][column + c2];
+
+  if ((a >= 1) == (b >= 1)) { return null; }
+  return {
+    x: (column + c1) * colWidth + (c1 != c2) * colWidth * interpolate(a, b),
+    y: (row + r1) * rowHeight + (r1 != r2) * rowHeight * interpolate(a, b)
+  }
+}
 
 function top(row, column, table) {
-  var a = table[row][column];
-  var b = table[row][column + 1];
-  var abool = a >= 1;
-  var bbool = b >= 1;
-  if (abool == bbool) {
-    return null;
-  }
-  return {
-    x: column * colWidth + colWidth * interpolate(a, b),
-    y: row * rowHeight
-  }
+  return edge(row, column, table, 0, 0, 0, 1);
 }
 
 function bottom(row, column, table) {
-  var a = table[row + 1][column];
-  var b = table[row + 1][column + 1];
-  var abool = a >= 1;
-  var bbool = b >= 1;
-  if (abool == bbool) {
-    return null;
-  }
-  return {
-    x: column * colWidth + colWidth * interpolate(a, b),
-    y: (row + 1) * rowHeight
-  }
+  return edge(row, column, table, 1, 0, 1, 1);
 }
 
 function left(row, column, table) {
-  var a = table[row][column];
-  var b = table[row + 1][column];
-  var abool = a >= 1;
-  var bbool = b >= 1;
-  if (abool == bbool) {
-    return null;
-  }
-  return {
-    x: (column) * colWidth,
-    y: row * rowHeight + rowHeight * interpolate(a, b)
-  }
+  return edge(row, column, table, 0, 0, 1, 0);
 }
 
 function right(row, column, table) {
-  var a = table[row][column + 1];
-  var b = table[row + 1][column + 1];
-  var abool = a >= 1;
-  var bbool = b >= 1;
-  if (abool == bbool) {
-    return null;
-  }
-  return {
-    x: (column + 1) * colWidth,
-    y: row * rowHeight + rowHeight * interpolate(a, b)
-  }
+  return edge(row, column, table, 0, 1, 1, 1);
 }
 
 function interpolate(fa, fb) {
   return enableInterpolation ? ((1-fa)/(fb - fa)) : 0.5;
 }
 
+function corner(column, row, c, r) {
+  return {
+    x: (column + c) * colWidth,
+    y: (row + r) * rowHeight
+  }
+}
+
 function getShape(tl, tr, bl, br, row, column, table) {
   var num = (tl << 3) + (tr << 2) + (bl << 1) + br;
-  var bottomRight = {
-    x: (column + 1) * colWidth,
-    y: (row + 1) * rowHeight
-  }
-  var topRight = {
-    x: (column + 1) * colWidth,
-    y: row * rowHeight
-  }
-  var topLeft = {
-    x: column * colWidth,
-    y: row * rowHeight
-  }
-  var bottomLeft = {
-    x: column * colWidth,
-    y: (row + 1) * rowHeight
-  }
+  var bottomRight = corner(column, row, 1, 1);
+  var topRight = corner(column, row, 1, 0);
+  var topLeft = corner(column, row, 0, 0);
+  var bottomLeft = corner(column, row, 0, 1);
+
   var r = right(row, column, table);
   var b = bottom(row, column, table);
   var l = left(row, column, table);
@@ -159,8 +127,10 @@ function drawGrid() {
         ctx.stroke();
     }
   }
+}
 
-  // Corner squares
+function drawBalls() {
+  // Populate Table
   var table = [];
   for (var row = 0; row < numRows + 1; row++) {
     table.push([]);
@@ -191,7 +161,6 @@ function drawGrid() {
     }
   }
 
-
   // Draw lines
   for (var row = 0; row < numRows; row++) {
     for (var col = 0; col < numCols; col++) {
@@ -204,8 +173,6 @@ function drawGrid() {
         var shape = getShape(tl, tr, bl, br, row, col, table);
 
         if (shape.length > 0) {
-          console.log(shape);
-
           ctx.fillStyle = 'red';
           ctx.beginPath();
           ctx.moveTo(shape[0].x, shape[0].y);
@@ -263,15 +230,16 @@ function makeCircles() {
 
     function renderContent() {
       drawGrid();
-      for (var i = 0; i < circles.length; i++) {
-          var c = circles[i];
-          if (debug) {
+      drawBalls();
+      if (debug) {
+        for (var i = 0; i < circles.length; i++) {
+            var c = circles[i];
             ctx.strokeStyle = c.color;
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.arc(c.posX, c.posY, c.radius, 0, 2 * Math.PI);
             ctx.stroke();
-          }
+        }
       }
     } //end function renderContent
 
