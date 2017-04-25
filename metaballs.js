@@ -6,8 +6,8 @@ var centerY = canvas.height / 2;
 
 var circles = [];
 
-var debug = false;
-var enableInterpolation = false;
+var debug = true;
+var enableInterpolation = true;
 
 ctx.font="10px Avenir";
 
@@ -16,6 +16,8 @@ var numCols = debug ? 15 : 300;
 
 var rowHeight = canvas.height / numRows;
 var colWidth = canvas.width / numCols;
+
+var filledShapes = true;
 
 function top(row, column, table) {
   var a = table[row][column];
@@ -77,6 +79,64 @@ function interpolate(fa, fb) {
   return enableInterpolation ? ((1-fa)/(fb - fa)) : 0.5;
 }
 
+function getShape(tl, tr, bl, br, row, column, table) {
+  var num = (tl << 3) + (tr << 2) + (bl << 1) + br;
+  var bottomRight = {
+    x: (column + 1) * colWidth,
+    y: (row + 1) * rowHeight
+  }
+  var topRight = {
+    x: (column + 1) * colWidth,
+    y: row * rowHeight
+  }
+  var topLeft = {
+    x: column * colWidth,
+    y: row * rowHeight
+  }
+  var bottomLeft = {
+    x: column * colWidth,
+    y: (row + 1) * rowHeight
+  }
+  var r = right(row, column, table);
+  var b = bottom(row, column, table);
+  var l = left(row, column, table);
+  var t = top(row, column, table);
+  switch (num) {
+    case 0: // 0000
+      return [];
+    case 1: // 0001
+      return [r, bottomRight, b];
+    case 2: // 0010
+      return [l, bottomLeft, b];
+    case 3: // 0011
+      return [l, bottomLeft, bottomRight, r];
+    case 4: // 0100
+      return [t, topRight, r];
+    case 5: // 0101
+      return [t, topRight, bottomRight, b];
+    case 6: // 0110
+      return [t, topRight, r, b, bottomLeft, l];
+    case 7: // 0111
+      return [t, topRight, bottomRight, bottomLeft, l];
+    case 8: // 1000
+      return [l, topLeft, t];
+    case 9: // 1001
+      return [l, topLeft, t, r, bottomRight, b];
+    case 10: // 1010
+      return [topLeft, t, b, bottomLeft];
+    case 11: // 1011
+      return [topLeft, t, r, bottomRight, bottomLeft];
+    case 12: // 1100
+      return [topLeft, topRight, r, l];
+    case 13: // 1101
+      return [topLeft, topRight, bottomRight, b, l];
+    case 14: // 1110
+      return [topLeft, topRight, r, b, bottomLeft];
+    case 15: // 1111
+      return [topLeft, topRight, bottomRight, bottomLeft];
+  }
+}
+
 function drawGrid() {
   ctx.fillSytle = 'black';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -99,33 +159,6 @@ function drawGrid() {
         ctx.stroke();
     }
   }
-
-  // Centre squares
-  // for (var row = 0; row < numRows; row++) {
-  //   for (var col = 0; col < numCols; col++) {
-  //     var squareWidth = 5;
-  //
-  //     var yPos = (row * rowHeight + (row + 1) * rowHeight) / 2;
-  //     var xPos = (col * colWidth + (col + 1) * colWidth) / 2;
-  //
-  //     var f = 0;
-  //     for (var i = 0; i < circles.length; i++) {
-  //       var c = circles[i];
-  //       f += Math.pow((c.radius), 2) / (Math.pow(xPos - c.posX, 2) + Math.pow(yPos - c.posY, 2));
-  //     }
-  //
-  //     if (f >= 1) {
-  //       ctx.fillStyle = 'green';
-  //       ctx.fillRect(col * colWidth, row * rowHeight, colWidth, rowHeight);
-  //     }
-  //
-  //     ctx.fillStyle = 'gray';
-  //     if (debug) {
-  //       ctx.fillText(f.toFixed(2), xPos - squareWidth, yPos + 2 * squareWidth);
-  //       ctx.fillRect(xPos - squareWidth / 2, yPos - squareWidth / 2, squareWidth, squareWidth);
-  //     }
-  //
-  //   }
 
   // Corner squares
   var table = [];
@@ -167,31 +200,49 @@ function drawGrid() {
       var bl = table[row + 1][col] >= 1;
       var br = table[row + 1][col + 1] >= 1;
 
-      var t = top(row, col, table);
-      var l = left(row, col, table);
-      var b = bottom(row, col, table);
-      var r = right(row, col, table);
+      if (filledShapes) {
+        var shape = getShape(tl, tr, bl, br, row, col, table);
 
-      var points = [];
-      // Special case
-      if (tl && br && !tr && !bl) {
-        points.push(l, b, r, t);
-      } else {
-        points.push(t, l, b, r);
-      }
+        if (shape.length > 0) {
+          console.log(shape);
 
-      var a = points.filter(x => x);
-      for (var i = 0; i < a.length / 2; i++) {
-        var s = a[2 * i];
-        var e = a[2 * i + 1];
-        if (row == 0 && col == 0) {
-          console.log(s, e);
+          ctx.fillStyle = 'red';
+          ctx.beginPath();
+          ctx.moveTo(shape[0].x, shape[0].y);
+          for (var i = 1; i < shape.length; i++) {
+            ctx.lineTo(shape[i].x, shape[i].y);
+          }
+          ctx.lineTo(shape[0].x, shape[0].y);
+          ctx.fill();
         }
-        ctx.strokeStyle = 'green';
-        ctx.beginPath();
-        ctx.moveTo(s.x,s.y);
-        ctx.lineTo(e.x,e.y);
-        ctx.stroke();
+      } else {
+        var t = top(row, col, table);
+        var l = left(row, col, table);
+        var b = bottom(row, col, table);
+        var r = right(row, col, table);
+
+        var points = [];
+        // Special case
+        if (tl && br && !tr && !bl) {
+          points.push(l, b, r, t);
+        } else {
+          points.push(t, l, b, r);
+        }
+
+        var a = points.filter(x => x);
+        for (var i = 0; i < a.length / 2; i++) {
+          var s = a[2 * i];
+          var e = a[2 * i + 1];
+          if (row == 0 && col == 0) {
+            console.log(s, e);
+          }
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = 'red';
+          ctx.beginPath();
+          ctx.moveTo(s.x,s.y);
+          ctx.lineTo(e.x,e.y);
+          ctx.stroke();
+        }
       }
     }
   }
